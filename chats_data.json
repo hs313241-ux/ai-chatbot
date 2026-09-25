@@ -1,0 +1,50 @@
+{
+  "1f86c41d": {
+    "title": "hi",
+    "messages": [
+      {
+        "role": "user",
+        "content": "hi"
+      },
+      {
+        "role": "assistant",
+        "content": "\n\n⚠️ Error: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.6-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).', 'status': 'NOT_FOUND'}}"
+      }
+    ],
+    "uploaded_context": null,
+    "uploaded_filename": null,
+    "order": 0
+  },
+  "6990c28d": {
+    "title": "hello",
+    "messages": [
+      {
+        "role": "user",
+        "content": "hello"
+      },
+      {
+        "role": "assistant",
+        "content": "\n\n⚠️ Error: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.6-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).', 'status': 'NOT_FOUND'}}"
+      },
+      {
+        "role": "user",
+        "content": "hi"
+      },
+      {
+        "role": "assistant",
+        "content": "Hello! How can I help you today?"
+      },
+      {
+        "role": "user",
+        "content": "seo full form"
+      },
+      {
+        "role": "assistant",
+        "content": "The full form of **SEO** is **Search Engine Optimization**. \n\nIt is the practice of improving a website to increase its visibility and rank higher in search engine results (like on Google) when people search for related topics, products, or services."
+      }
+    ],
+    "uploaded_context": null,
+    "uploaded_filename": null,
+    "order": 1
+  }
+}

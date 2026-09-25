@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Chatbot</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: -apple-system, 'Segoe UI', Inter, sans-serif;
+        background-color: #212121;
+        color: #ececec;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .app { display: flex; height: 100vh; }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+        width: 260px;
+        background-color: #171717;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #2a2a2a;
+        flex-shrink: 0;
+    }
+    .sidebar-header {
+        padding: 12px;
+        border-bottom: 1px solid #2a2a2a;
+    }
+    .new-chat-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 10px 12px;
+        background: transparent;
+        border: 1px solid #3a3a3a;
+        border-radius: 10px;
+        color: #ececec;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .new-chat-btn:hover { background: #262626; }
+
+    .chat-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px;
+    }
+    .chat-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        color: #d4d4d4;
+        margin-bottom: 2px;
+        position: relative;
+    }
+    .chat-item:hover { background: #202020; }
+    .chat-item.active { background: #262626; color: #fff; }
+    .chat-title {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .chat-actions {
+        display: none;
+        gap: 4px;
+    }
+    .chat-item:hover .chat-actions { display: flex; }
+    .chat-actions button {
+        background: none;
+        border: none;
+        color: #8a8a8a;
+        cursor: pointer;
+        font-size: 0.85rem;
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+    .chat-actions button:hover { background: #333; color: #fff; }
+
+    .sidebar-footer {
+        padding: 12px;
+        border-top: 1px solid #2a2a2a;
+        font-size: 0.75rem;
+        color: #7a7a7a;
+    }
+
+    /* ===== Main area ===== */
+    .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px 0 140px 0;
+    }
+    .messages-inner {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .welcome {
+        text-align: center;
+        margin-top: 18vh;
+    }
+    .welcome h1 {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    .welcome p { color: #8a8a8a; font-size: 0.95rem; }
+
+    .message {
+        display: flex;
+        gap: 14px;
+        padding: 18px 0;
+        border-bottom: 1px solid #262626;
+    }
+    .avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+    .avatar.user { background: #4f46e5; }
+    .avatar.assistant { background: #10a37f; }
+    .message-content {
+        flex: 1;
+        line-height: 1.7;
+        font-size: 0.96rem;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    .message-content code {
+        background: #2a2a2a;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.88rem;
+    }
+
+    .cursor {
+        display: inline-block;
+        width: 8px;
+        height: 1em;
+        background: #ececec;
+        animation: blink 1s infinite;
+        vertical-align: text-bottom;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ===== Composer ===== */
+    .composer-wrap {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 16px 20px 20px 20px;
+        background: linear-gradient(to top, #212121 60%, transparent);
+    }
+    .composer {
+        max-width: 720px;
+        margin: 0 auto;
+        position: relative;
+    }
+    .attach-preview {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        background: #2a2a2a;
+        border-radius: 10px;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        font-size: 0.82rem;
+        color: #ccc;
+        max-width: fit-content;
+    }
+    .attach-preview button {
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .composer-box {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        background: #2f2f2f;
+        border: 1px solid #4a4a4a;
+        border-radius: 26px;
+        padding: 10px 12px;
+    }
+
+    .plus-btn, .mic-btn, .send-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: none;
+        background: #454545;
+        color: #ececec;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        font-size: 1rem;
+        transition: background 0.15s;
+    }
+    .plus-btn:hover, .mic-btn:hover { background: #555; }
+    .mic-btn.recording { background: #dc2626; }
+    .send-btn { background: #ececec; color: #212121; }
+    .send-btn:hover { background: #fff; }
+    .send-btn:disabled { background: #4a4a4a; color: #888; cursor: not-allowed; }
+
+    #textInput {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #ececec;
+        font-size: 0.95rem;
+        resize: none;
+        max-height: 160px;
+        line-height: 1.5;
+        padding: 6px 4px;
+        font-family: inherit;
+    }
+    #textInput::placeholder { color: #8a8a8a; }
+
+    /* Plus menu dropdown */
+    .plus-menu {
+        display: none;
+        position: absolute;
+        bottom: 54px;
+        left: 0;
+        background: #2f2f2f;
+        border: 1px solid #4a4a4a;
+        border-radius: 12px;
+        padding: 6px;
+        min-width: 200px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        z-index: 10;
+    }
+    .plus-menu.show { display: block; }
+    .plus-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.88rem;
+        color: #ececec;
+    }
+    .plus-menu-item:hover { background: #3a3a3a; }
+    .plus-menu-item.toggle-on { color: #10a37f; }
+
+    .stop-btn {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        margin: 0 auto 10px auto;
+        padding: 6px 16px;
+        background: #2f2f2f;
+        border: 1px solid #4a4a4a;
+        border-radius: 20px;
+        color: #ececec;
+        font-size: 0.85rem;
+        cursor: pointer;
+        width: fit-content;
+    }
+    .stop-btn.show { display: flex; }
+    .stop-btn:hover { background: #3a3a3a; }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <button class="new-chat-btn" onclick="createNewChat()">
+                <span>＋</span> New chat
+            </button>
+        </div>
+        <div class="chat-list" id="chatList"></div>
+        <div class="sidebar-footer">
+            llama3.2 · Running offline
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+        <div class="messages" id="messagesContainer">
+            <div class="messages-inner" id="messagesInner">
+                <div class="welcome" id="welcomeState">
+                    <h1>AI Chatbot</h1>
+                    <p>Ask me anything — I'm here to help.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="composer-wrap">
+            <button class="stop-btn" id="stopBtn" onclick="stopGeneration()">⏹ Stop generating</button>
+
+            <div class="composer">
+                <div class="attach-preview" id="attachPreview">
+                    <span id="attachName"></span>
+                    <button onclick="removeAttachment()">✕</button>
+                </div>
+
+                <div class="plus-menu" id="plusMenu">
+                    <div class="plus-menu-item" onclick="document.getElementById('fileInput').click()">
+                        📎 Attach file (.txt, .md)
+                    </div>
+                    <div class="plus-menu-item" id="webSearchToggle" onclick="toggleWebSearch()">
+                        🌐 <span id="webSearchLabel">Web search: Off</span>
+                    </div>
+                </div>
+
+                <div class="composer-box">
+                    <button class="plus-btn" onclick="togglePlusMenu()">＋</button>
+                    <textarea id="textInput" placeholder="Message AI Chatbot..." rows="1"></textarea>
+                    <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎤</button>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>↑</button>
+                </div>
+                <input type="file" id="fileInput" accept=".txt,.md" style="display:none" onchange="handleFileSelect(event)">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentChatId = null;
+let webSearchEnabled = false;
+let attachedFileName = null;
+let abortController = null;
+let isGenerating = false;
+
+// ============================================
+// Chat list management
+// ============================================
+async function loadChatList() {
+    const res = await fetch('/api/chats');
+    const chatsData = await res.json();
+    const listEl = document.getElementById('chatList');
+    listEl.innerHTML = '';
+
+    chatsData.slice().reverse().forEach(chat => {
+        const item = document.createElement('div');
+        item.className = 'chat-item' + (chat.id === currentChatId ? ' active' : '');
+        item.innerHTML = `
+            <span class="chat-title">${escapeHtml(chat.title)}</span>
+            <div class="chat-actions">
+                <button onclick="renameChat(event, '${chat.id}')">✏️</button>
+                <button onclick="deleteChat(event, '${chat.id}')">🗑️</button>
+            </div>
+        `;
+        item.onclick = () => switchChat(chat.id);
+        listEl.appendChild(item);
+    });
+
+    if (!currentChatId && chatsData.length > 0) {
+        switchChat(chatsData[chatsData.length - 1].id);
+    } else if (chatsData.length === 0) {
+        createNewChat();
+    }
+}
+
+async function createNewChat() {
+    const res = await fetch('/api/chats', { method: 'POST' });
+    const chat = await res.json();
+    currentChatId = chat.id;
+    attachedFileName = null;
+    await loadChatList();
+    renderMessages([]);
+}
+
+async function switchChat(chatId) {
+    currentChatId = chatId;
+    const res = await fetch(`/api/chats/${chatId}`);
+    const chat = await res.json();
+    attachedFileName = chat.uploaded_filename;
+    updateAttachPreview();
+    renderMessages(chat.messages);
+    await loadChatList();
+}
+
+async function renameChat(event, chatId) {
+    event.stopPropagation();
+    const newTitle = prompt('New chat name:');
+    if (newTitle && newTitle.trim()) {
+        await fetch(`/api/chats/${chatId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle.trim() })
+        });
+        await loadChatList();
+    }
+}
+
+async function deleteChat(event, chatId) {
+    event.stopPropagation();
+    if (!confirm('Delete this chat?')) return;
+    await fetch(`/api/chats/${chatId}`, { method: 'DELETE' });
+    if (chatId === currentChatId) {
+        currentChatId = null;
+    }
+    await loadChatList();
+}
+
+// ============================================
+// Message rendering
+// ============================================
+function renderMessages(messages) {
+    const inner = document.getElementById('messagesInner');
+    if (messages.length === 0) {
+        inner.innerHTML = `
+            <div class="welcome">
+                <h1>AI Chatbot</h1>
+                <p>Ask me anything — I'm here to help.</p>
+            </div>`;
+        return;
+    }
+    inner.innerHTML = '';
+    messages.forEach(msg => appendMessage(msg.role, msg.content));
+}
+
+function appendMessage(role, content) {
+    const inner = document.getElementById('messagesInner');
+    const welcome = document.getElementById('welcomeState');
+    if (welcome && inner.contains(welcome)) inner.innerHTML = '';
+
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'message';
+    msgDiv.innerHTML = `
+        <div class="avatar ${role}">${role === 'user' ? '🧑' : '🤖'}</div>
+        <div class="message-content">${escapeHtml(content)}</div>
+    `;
+    inner.appendChild(msgDiv);
+    scrollToBottom();
+    return msgDiv.querySelector('.message-content');
+}
+
+function scrollToBottom() {
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ============================================
+// Sending messages + streaming
+// ============================================
+async function sendMessage() {
+    const input = document.getElementById('textInput');
+    const text = input.value.trim();
+    if (!text || isGenerating) return;
+
+    if (!currentChatId) await createNewChat();
+
+    appendMessage('user', text);
+    input.value = '';
+    input.style.height = 'auto';
+    document.getElementById('sendBtn').disabled = true;
+
+    const contentEl = appendMessage('assistant', '');
+    contentEl.innerHTML = '<span class="cursor"></span>';
+
+    isGenerating = true;
+    document.getElementById('stopBtn').classList.add('show');
+    abortController = new AbortController();
+
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: currentChatId,
+                message: text,
+                web_search: webSearchEnabled
+            }),
+            signal: abortController.signal
+        });
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            fullText += decoder.decode(value, { stream: true });
+            contentEl.textContent = fullText;
+            contentEl.innerHTML += '<span class="cursor"></span>';
+            scrollToBottom();
+        }
+        contentEl.textContent = fullText;
+
+    } catch (err) {
+        if (err.name !== 'AbortError') {
+            contentEl.textContent = '⚠️ Error: ' + err.message;
+        }
+    } finally {
+        isGenerating = false;
+        document.getElementById('stopBtn').classList.remove('show');
+        await loadChatList();
+    }
+}
+
+function stopGeneration() {
+    if (abortController) abortController.abort();
+}
+
+// ============================================
+// Composer interactions
+// ============================================
+const textInput = document.getElementById('textInput');
+textInput.addEventListener('input', () => {
+    document.getElementById('sendBtn').disabled = textInput.value.trim().length === 0;
+    textInput.style.height = 'auto';
+    textInput.style.height = Math.min(textInput.scrollHeight, 160) + 'px';
+});
+textInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+function togglePlusMenu() {
+    document.getElementById('plusMenu').classList.toggle('show');
+}
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('plusMenu');
+    const plusBtn = document.querySelector('.plus-btn');
+    if (!menu.contains(e.target) && e.target !== plusBtn) {
+        menu.classList.remove('show');
+    }
+});
+
+function toggleWebSearch() {
+    webSearchEnabled = !webSearchEnabled;
+    document.getElementById('webSearchLabel').textContent = 'Web search: ' + (webSearchEnabled ? 'On' : 'Off');
+    document.getElementById('webSearchToggle').classList.toggle('toggle-on', webSearchEnabled);
+}
+
+// ============================================
+// File attach
+// ============================================
+async function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file || !currentChatId) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`/api/upload/${currentChatId}`, { method: 'POST', body: formData });
+    const result = await res.json();
+    if (result.ok) {
+        attachedFileName = result.filename;
+        updateAttachPreview();
+    }
+    document.getElementById('plusMenu').classList.remove('show');
+}
+
+function updateAttachPreview() {
+    const preview = document.getElementById('attachPreview');
+    if (attachedFileName) {
+        preview.style.display = 'flex';
+        document.getElementById('attachName').textContent = '📄 ' + attachedFileName;
+    } else {
+        preview.style.display = 'none';
+    }
+}
+
+function removeAttachment() {
+    attachedFileName = null;
+    updateAttachPreview();
+}
+
+// ============================================
+// Voice input (browser's built-in speech recognition - free, no install needed)
+// Works in Chrome/Edge. Falls back gracefully in other browsers.
+// ============================================
+let recognition = null;
+let isRecording = false;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        textInput.value += (textInput.value ? ' ' : '') + transcript;
+        textInput.dispatchEvent(new Event('input'));
+    };
+    recognition.onend = () => {
+        isRecording = false;
+        document.getElementById('micBtn').classList.remove('recording');
+    };
+    recognition.onerror = () => {
+        isRecording = false;
+        document.getElementById('micBtn').classList.remove('recording');
+    };
+} else {
+    document.getElementById('micBtn').style.display = 'none';
+}
+
+function toggleMic() {
+    if (!recognition) return;
+    if (isRecording) {
+        recognition.stop();
+    } else {
+        recognition.start();
+        isRecording = true;
+        document.getElementById('micBtn').classList.add('recording');
+    }
+}
+
+// ============================================
+// Init
+// ============================================
+loadChatList();
+</script>
+
+</body>
+</html>
