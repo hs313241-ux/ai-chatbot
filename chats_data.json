@@ -41,6 +41,38 @@
       {
         "role": "assistant",
         "content": "The full form of **SEO** is **Search Engine Optimization**. \n\nIt is the practice of improving a website to increase its visibility and rank higher in search engine results (like on Google) when people search for related topics, products, or services."
+      },
+      {
+        "role": "user",
+        "content": "hi"
+      },
+      {
+        "role": "assistant",
+        "content": "Hello again! How can I help you today?"
+      },
+      {
+        "role": "user",
+        "content": "do you know about My good movers"
+      },
+      {
+        "role": "assistant",
+        "content": "Yes! \"My Good Movers\" generally refers to a moving and relocation service provider. Companies with this name typically offer services such as:\n\n* **Local and Long-Distance Moving:** Transporting household or office goods.\n* **Packing and Unpacking:** Providing materials and labor to safely pack belongings.\n* **Loading and Unloading:** Heavy lifting and securing items in moving trucks.\n* **Storage Solutions:** Short-term or long-term storage for items.\n\nAre you looking for specific details about a particular location, their services, or reviews for a company by this name? Let me know how I can help!"
+      },
+      {
+        "role": "user",
+        "content": "give me the url of the website"
+      },
+      {
+        "role": "assistant",
+        "content": "\n\n⚠️ Error: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}"
+      },
+      {
+        "role": "user",
+        "content": "give me the url of the website"
+      },
+      {
+        "role": "assistant",
+        "content": "The official website for **My Good Movers** is:\n\n👉 [https://mygoodmovers.com/](https://mygoodmovers.com/)\n\n*(Note: If you are looking for a specific local branch or a different company operating under a similar name, let me know your location so I can help you find the right one!)*"
       }
     ],
     "uploaded_context": null,
