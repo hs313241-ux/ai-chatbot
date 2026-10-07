@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign up · AI Chatbot</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: -apple-system, 'Segoe UI', Inter, sans-serif;
+        background-color: #212121;
+        color: #ececec;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .card {
+        width: 100%;
+        max-width: 360px;
+        background: #2a2a2a;
+        border: 1px solid #3a3a3a;
+        border-radius: 16px;
+        padding: 32px 28px;
+    }
+    h1 { font-size: 1.4rem; font-weight: 600; text-align: center; margin-bottom: 4px; }
+    .sub { text-align: center; color: #8a8a8a; font-size: 0.85rem; margin-bottom: 24px; }
+    label { display: block; font-size: 0.82rem; color: #b5b5b5; margin: 14px 0 6px; }
+    input {
+        width: 100%;
+        background: #1a1a1a;
+        border: 1px solid #3a3a3a;
+        border-radius: 8px;
+        padding: 10px 12px;
+        color: #ececec;
+        font-size: 0.92rem;
+        outline: none;
+    }
+    input:focus { border-color: #6366f1; }
+    button.primary {
+        width: 100%;
+        margin-top: 20px;
+        padding: 11px;
+        background: #ececec;
+        color: #1a1a1a;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.92rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    button.primary:hover { background: #fff; }
+    button.primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 20px 0;
+        color: #6a6a6a;
+        font-size: 0.78rem;
+    }
+    .divider::before, .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #3a3a3a;
+    }
+    .google-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px;
+        background: #fff;
+        color: #1a1a1a;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .google-btn:hover { background: #f0f0f0; }
+    .error {
+        display: none;
+        background: #3a1f1f;
+        border: 1px solid #5a2a2a;
+        color: #f5a5a5;
+        border-radius: 8px;
+        padding: 9px 12px;
+        font-size: 0.82rem;
+        margin-top: 16px;
+    }
+    .footer-link { text-align: center; margin-top: 20px; font-size: 0.85rem; color: #8a8a8a; }
+    .footer-link a { color: #ececec; text-decoration: none; font-weight: 500; }
+    .footer-link a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+    <div class="card">
+        <h1>Create your account</h1>
+        <p class="sub">Sign up for AI Chatbot</p>
+
+        <a class="google-btn" href="/auth/google">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.5 0-14 4.2-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.3-5.1l-6.6-5.6c-2 1.5-4.6 2.4-7.7 2.4-5.3 0-9.7-3.3-11.3-7.9l-6.6 5.1C9.9 39.7 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.6 5.6C40.8 36.6 44 30.9 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+            Continue with Google
+        </a>
+
+        <div class="divider">or</div>
+
+        <form id="signupForm">
+            <label for="name">Name</label>
+            <input type="text" id="name" required>
+            <label for="email">Email</label>
+            <input type="email" id="email" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" minlength="6" required>
+            <button type="submit" class="primary" id="submitBtn">Sign up</button>
+            <div class="error" id="errorBox"></div>
+        </form>
+
+        <div class="footer-link">Already have an account? <a href="/login">Log in</a></div>
+    </div>
+
+<script>
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const errorBox = document.getElementById('errorBox');
+    errorBox.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+
+    try {
+        const res = await fetch('/api/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            })
+        });
+        const result = await res.json();
+        if (res.ok) {
+            window.location.href = '/';
+        } else {
+            errorBox.textContent = result.error || 'Sign up failed.';
+            errorBox.style.display = 'block';
+        }
+    } catch (err) {
+        errorBox.textContent = 'Something went wrong. Try again.';
+        errorBox.style.display = 'block';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign up';
+    }
+});
+</script>
+</body>
+</html>
