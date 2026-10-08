@@ -307,7 +307,9 @@
         </div>
         <div class="chat-list" id="chatList"></div>
         <div class="sidebar-footer">
+            <div id="userInfo" style="margin-bottom:8px;font-weight:500;color:#ececec;"></div>
             Gemini · Online
+            <a href="#" id="logoutLink" onclick="logout(event)" style="float:right;color:#8a8a8a;text-decoration:none;">Log out</a>
         </div>
     </div>
 
@@ -648,8 +650,29 @@ function toggleMic() {
 }
 
 // ============================================
+// Auth - show current user, handle logout
+// ============================================
+async function loadUserInfo() {
+    try {
+        const res = await fetch('/api/me');
+        if (res.status === 401) { window.location.href = '/login'; return; }
+        const me = await res.json();
+        document.getElementById('userInfo').textContent = me.name || me.email;
+    } catch (e) {
+        window.location.href = '/login';
+    }
+}
+
+async function logout(event) {
+    event.preventDefault();
+    await fetch('/api/logout', { method: 'POST' });
+    window.location.href = '/login';
+}
+
+// ============================================
 // Init
 // ============================================
+loadUserInfo();
 loadChatList();
 </script>
 
